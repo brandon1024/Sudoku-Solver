@@ -5,6 +5,9 @@ public class SudokuSolver
 	private int[][] initialGrid;
 	private int[][] solvedGrid;
 
+	/** Default SudokuSolver constructor. Initializes objects fields
+	  * to default values.
+	  */
     public SudokuSolver()
     {
     	this.iterations = 0;
