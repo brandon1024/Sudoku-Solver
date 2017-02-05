@@ -1,85 +1,147 @@
 public class SudokuSolver
 {
-    public static void main(String[] args)
-    {
-    	int[][] initGrid = new int[9][9];
-    	initGrid[0][0] = 6;
-    	initGrid[0][3] = 7;
-    	initGrid[0][4] = 2;
-    	initGrid[0][7] = 3;
-    	initGrid[0][8] = 1;
-    	initGrid[1][1] = 3;
-    	initGrid[1][2] = 5;
-    	initGrid[1][3] = 1;
-    	initGrid[1][4] = 6;
-    	initGrid[1][5] = 9;
-    	initGrid[1][6] = 8;
-    	initGrid[2][0] = 9;
-    	initGrid[2][4] = 8;
-    	initGrid[3][1] = 5;
-    	initGrid[3][2] = 6;
-    	initGrid[3][4] = 9;
-    	initGrid[4][2] = 1;
-    	initGrid[4][7] = 7;
-    	initGrid[5][0] = 3;
-    	initGrid[5][1] = 4;
-    	initGrid[5][3] = 5;
-    	initGrid[5][6] = 2;
-    	initGrid[6][2] = 8;
-    	initGrid[6][3] = 6;
-    	initGrid[6][5] = 3;
-    	initGrid[6][6] = 7;
-    	initGrid[6][7] = 5;
-    	initGrid[7][1] = 7;
-    	initGrid[7][4] = 5;
-    	initGrid[7][8] = 3;
-    	initGrid[8][7] = 8;
-    	
-    	SudokuSolver.print(initGrid);
-    	int[][] solvedGrid = (new SudokuSolver()).solve(initGrid);
-    	
-    	SudokuSolver.print(solvedGrid);
-    }
+	private int iterations;
+	private int[] xy;
+	private int[][] initialGrid;
+	private int[][] solvedGrid;
 
-    public SudokuSolver() {}
-
-    public int[][] solve(int[][] initgrid)
+    public SudokuSolver()
     {
-    	SudokuGrid grid = new SudokuGrid(initgrid);
-    	int[] xy = new int[]{0,0};
-    	
-    	this.stepForward(xy);
-    	
-    	this.stepBackward(xy);
-    	
-    	
-    	
-    	
-    	return grid.getGrid();
+    	this.iterations = 0;
+    	this.xy = new int[]{0,0};
+    	this.initialGrid = null;
+    	this.solvedGrid = null;
     }
     
-    private int[] stepForward(int[] xy)
+    public SudokuSolver(int[][] initGrid)
     {
-    	if(xy[0] >= 8 && xy[1] >= 8)
-    		return xy;
+    	this.iterations = 0;
+    	this.xy = new int[]{0,0};
+    	this.initialGrid = initGrid;
+    	this.solvedGrid = null;
+    }
+    
+    public void reset()
+    {
+    	this.iterations = 0;
+    	this.xy = new int[]{0,0};
+    	this.initialGrid = null;
+    	this.solvedGrid = null;
+    }
+    
+    public void reset(int[][] initGrid)
+    {
+    	this.iterations = 0;
+    	this.xy = new int[]{0,0};
+    	this.initialGrid = initGrid;
+    	this.solvedGrid = null;
+    }
+    
+    public int[][] solve(int[][] initGrid)
+    {
+    	this.initialGrid = initGrid;
+    	return this.solve();
+    }
+    
+    public int[][] solve()
+    {
+    	if(this.initialGrid == null)
+    		throw new RuntimeException("Initial Grid Null. Initialize SudokuSolver with Initial Grid.");
+    	else if(this.initialGrid.length != 9 || this.initialGrid[0].length != 9)
+    		throw new RuntimeException("Invalid Grid Dimensions.");
     	
-    	if(xy[0] == 8)
+    	SudokuGrid grid = new SudokuGrid(this.initialGrid);
+    	
+    	for(int i = 0; i < 9; i++)
     	{
-    		xy[0] = 0;
-    		xy[1]++;
+    		for(int o = 1; o < 10; o++)
+    		{
+    			if(grid.rowContains(i, o) > 1 || grid.colContains(i, o) > 1 || grid.quadrantContains(i, o) > 1)
+    			{
+    				throw new RuntimeException("invalid sudoku puzzle; cannot be solved");
+    			}
+    		}
+    	}
+    	
+    	boolean backtrack = false;
+    	
+    	outerloop:
+    	while(true)
+    	{
+    		iterations++;
+    		
+    		if(!grid.isCellModifiable(this.xy[0], this.xy[1]))
+    		{
+    			if(!backtrack)
+    				this.stepForward();
+    			else
+    				this.stepBackward();
+    			
+    			continue;
+    		}
+    		
+    		if(grid.getCell(this.xy[0], this.xy[1]) == 9)
+    		{
+    			backtrack = true;
+    			grid.resetCell(this.xy[0], this.xy[1]);
+    			this.stepBackward();
+    			continue;
+    		}
+    		else
+    		{
+    			backtrack = false;
+    			
+    			do
+    			{
+    				if(grid.getCell(this.xy[0], this.xy[1]) == 9)
+    					continue outerloop;
+    				grid.incrementCell(this.xy[0], this.xy[1]);
+    				
+    				if(grid.rowContains(this.xy[1], grid.getCell(this.xy[0], this.xy[1])) > 1)
+    					continue;
+    				
+    				if(grid.colContains(this.xy[0], grid.getCell(this.xy[0], this.xy[1])) > 1)
+    					continue;
+    				
+    				if(grid.quadrantContains(grid.getQuadrant(this.xy[0], this.xy[1]), grid.getCell(this.xy[0], this.xy[1])) > 1)
+    					continue;
+    				
+    				break;
+    			}
+    			while(true);
+    			
+    			this.stepForward();
+    			if(grid.isValid())
+    				break;
+    			
+    			continue;
+    		}
+    	}
+
+    	this.solvedGrid = grid.getGrid();
+    	return this.solvedGrid;
+    }
+    
+    private void stepForward()
+    {
+    	if(this.xy[0] >= 8 && this.xy[1] >= 8)
+    		return;
+    	
+    	if(this.xy[0] == 8)
+    	{
+    		this.xy[0] = 0;
+    		this.xy[1]++;
     	}
     	else
     	{
-    		xy[0]++;
+    		this.xy[0]++;
     	}
-    	
-    	return xy;
     }
     
-    private int[] stepBackward(int[] xy)
+    private void stepBackward()
     {
-    	if(xy[0] <= 8 && xy[1] <= 0)
-    		return xy;
+    	if(xy[0] <= 0 && xy[1] <= 0)
+    		return;
     	
     	if(xy[0] == 0)
     	{
@@ -88,41 +150,32 @@ public class SudokuSolver
     	}
     	else
     	{
-    		xy[0]++;
+    		xy[0]--;
     	}
-    	
-    	return xy;
     }
     
-    public static void print(int[][] grid)
+    public int getXPos()
     {
-    	System.out.println("+===+===+===+===+===+===+===+===+===+");
-    	for(int i = 0; i < grid.length; i++)
-    	{
-    		System.out.print("|");
-    		for(int o = 0; o < grid[0].length; o++)
-    		{
-    			System.out.print(" " + grid[i][o] + " ");
-    			
-    			if((o+1) % 3 == 0)
-    			{
-    				System.out.print("|");
-    			}
-    			else
-    			{
-    				System.out.print("¦");
-    			}
-    		}
-    		System.out.println();
-    		
-    		if((i+1) % 3 == 0)
-    		{
-    			System.out.println("+===+===+===+===+===+===+===+===+===+");
-    		}
-    		else
-    		{
-    			System.out.println("+---+---+---+---+---+---+---+---+---+");
-    		}
-    	}
+    	return this.xy[0];
+    }
+    
+    public int getYPos()
+    {
+    	return this.xy[1];
+    }
+    
+    public int getIterations()
+    {
+    	return this.iterations;
+    }
+    
+    public int[][] getSolvedGrid()
+    {
+    	return this.solvedGrid;
+    }
+    
+    public int[][] getInitialGrid()
+    {
+    	return this.initialGrid;
     }
 }
