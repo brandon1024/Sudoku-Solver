@@ -16,6 +16,8 @@ public class SudokuGrid
       * Empty cells are modifiable, and cells with values 1-9 will be
       * marked as unmodifiable, and will not respond to incrementCell()
       * or resetCell().
+      * 
+      * @param grid The initial sudoku cells given, used to construct a grid object
       */
     public SudokuGrid(int[][] grid)
     {
@@ -48,8 +50,6 @@ public class SudokuGrid
     }
     
     /** Build an empty sudoku grid. Each cell has initial value 0, and is modifiable.
-      * 
-      *@param grid the intial sudoku grid
       */
     private void buildEmptyGrid()
     {
@@ -76,19 +76,19 @@ public class SudokuGrid
       * iff the frequency of numbers across a row are exactly 1, and the only numbers 
       * that appear are digits 1 through 9.
       * 
-      * @param row
+      * @param y row
       * @return true if the row is valid, false otherwise.
       */
-    public boolean isValidRow(int row)
+    public boolean isValidRow(int y)
     {
         //If Sum of Indices != 45 or Empty Cell Encountered, Row is Invalid
         int sum = 0;
         for(int i = 0; i < 9; i++)
         {
-            if(this.grid[row][i].value == 0)
+            if(this.grid[y][i].value == 0)
             	return false;
             
-        	sum += this.grid[row][i].value;
+        	sum += this.grid[y][i].value;
         }
 
         if(sum != 45)
@@ -101,7 +101,7 @@ public class SudokuGrid
 
             for(int o = 0; o < 9; o++)
             {
-                if(this.grid[row][o].value == i)
+                if(this.grid[y][o].value == i)
                     count++;
             }
 
@@ -123,16 +123,16 @@ public class SudokuGrid
       * iff the frequency of numbers across a column are exactly 1, and the only numbers 
       * that appear are digits 1 through 9.
       * 
-      * @param col
+      * @param x column
       * @return true if the column is valid, false otherwise.
       */
-    public boolean isValidColumn(int col)
+    public boolean isValidColumn(int x)
     {
         //If Sum of Indices != 45, Col is Invalid
         int sum = 0;
         for(int i = 0; i < 9; i++)
         {
-            sum += this.grid[i][col].value;
+            sum += this.grid[i][x].value;
         }
 
         if(sum != 45)
@@ -145,7 +145,7 @@ public class SudokuGrid
 
             for(int o = 0; o < 9; o++)
             {
-                if(this.grid[o][col].value == i)
+                if(this.grid[o][x].value == i)
                     count++;
             }
 
@@ -226,9 +226,9 @@ public class SudokuGrid
     }
 
     /** Validate the entire grid. Validates each row, column and quadrant individually.
-      * @see isValidColumn(int col)
-      * @see isValidRow(int row)
-      * @see isValidQuadrant(int quadrant
+      * @see isValidColumn(int x)
+      * @see isValidRow(int y)
+      * @see isValidQuadrant(int quadrant)
       * @return true if the grid is valid, false otherwise.
       */
     public boolean isValid()
@@ -259,16 +259,16 @@ public class SudokuGrid
 
     /** Test the frequency of a given number across a row.
       * 
-      * @param row
+      * @param y row
       * @param num
       * @return the number of occurrences of num in row
       */
-    public int rowContains(int row, int num)
+    public int rowContains(int y, int num)
     {
         int count = 0;
         for(int o = 0; o < 9; o++)
         {
-            if(this.grid[row][o].value == num)
+            if(this.grid[y][o].value == num)
                 count++;
         }
 
@@ -277,16 +277,16 @@ public class SudokuGrid
 
     /** Test the frequency of a given number across a column.
      * 
-     * @param row
+     * @param x column
      * @param num
      * @return the number of occurrences of num in col
      */
-    public int colContains(int col, int num)
+    public int colContains(int x, int num)
     {
         int count = 0;
         for(int o = 0; o < 9; o++)
         {
-            if(this.grid[o][col].value == num)
+            if(this.grid[o][x].value == num)
                 count++;
         }
 
@@ -295,7 +295,7 @@ public class SudokuGrid
 
     /** Test the frequency of a given number in a quadrant.
      * 
-     * @param row
+     * @param quadrant
      * @param num
      * @return the number of occurances of num in quadrant
      */
@@ -335,19 +335,19 @@ public class SudokuGrid
 
     /** Access the value of the grid cell at the given row and column.
      * 
-     * @param row
-     * @param col
+     * @param x column
+     * @param y row
      * @return the cell value at row and column
      */
-    public int getCell(int row, int col)
+    public int getCell(int x, int y)
     {
-        return this.grid[row][col].value;
+        return this.grid[y][x].value;
     }
 
     /** Compute the quadrant number specified by the row and column parameters.
      * 
-     * @param row
-     * @param col
+     * @param x column
+     * @param y row
      * @return the quadrant number specified by row and col
      */
     public int getQuadrant(int x, int y)
@@ -384,41 +384,41 @@ public class SudokuGrid
     /** Increment the cell at given row and column.
      * 
      * @throws RuntimeException if cell is not modifiable, or the cell value is 9.
-     * @param row
-     * @param col
+     * @param x column
+     * @param y row
      */
-    public void incrementCell(int row, int col)
+    public void incrementCell(int x, int y)
     {
-    	if(!this.grid[row][col].modifiable)
+    	if(!this.grid[y][x].modifiable)
     		 throw new RuntimeException("Cannot increment cell; user defined");
-    	else if(this.grid[row][col].value == 9)
+    	else if(this.grid[y][x].value == 9)
             throw new RuntimeException("Cannot increment cell; maximum possible cell value");
         else
-            this.grid[row][col].value++;
+            this.grid[y][x].value++;
     }
 
     /** Reset the cell to an empty cell with value 0.
      * 
      * @throws RuntimeException if cell is not modifiable.
-     * @param row
-     * @param col
+     * @param x column
+     * @param y row
      */
-    public void resetCell(int row, int col)
+    public void resetCell(int x, int y)
     {
-        if(!this.grid[row][col].modifiable)
+        if(!this.grid[y][x].modifiable)
         	 throw new RuntimeException("Cannot reset cell; user defined");
-    	this.grid[row][col].value = 0;
+    	this.grid[y][x].value = 0;
     }
     
     /** Returns whether the cell is modifiable.
      * 
-     * @param row
-     * @param col
+     * @param x column
+     * @param y row
      * @return whether the cell is modifiable.
      */
-    public boolean isCellModifiable(int row, int col)
+    public boolean isCellModifiable(int x, int y)
     {
-    	return this.grid[row][col].modifiable;
+    	return this.grid[y][x].modifiable;
     }
     
     /** Build an array of integers that represents the sudoku grid at the moment of

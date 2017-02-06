@@ -1,31 +1,21 @@
+import java.util.Arrays;
+
 public class SudokuSolverGUI
 {
 	public static void main(String[] args)
     {
-    	int[][] initGrid = new int[9][9];
-    	
-    	initGrid[0][0] = 8;
-    	initGrid[1][2] = 3;
-    	initGrid[1][2] = 8;
-    	initGrid[1][3] = 6;
-    	initGrid[2][1] = 7;
-    	initGrid[2][4] = 9;
-    	initGrid[2][6] = 2;
-    	initGrid[3][1] = 5;
-    	initGrid[3][5] = 7;
-    	initGrid[4][4] = 4;
-    	initGrid[4][5] = 5;
-    	initGrid[4][6] = 7;
-    	initGrid[5][3] = 1;
-    	initGrid[5][7] = 3;
-    	initGrid[6][2] = 1;
-    	initGrid[6][7] = 6;
-    	initGrid[6][8] = 8;
-    	initGrid[7][2] = 8;
-    	initGrid[7][3] = 5;
-    	initGrid[7][7] = 1;
-    	initGrid[8][1] = 9;
-    	initGrid[8][6] = 4;
+    	int[][] initGrid = new int[][]
+    	{
+    		{8,0,0,0,0,0,0,0,0},
+    		{0,0,3,6,0,0,0,0,0},
+    		{0,7,0,0,9,0,2,0,0},
+    		{0,5,0,0,0,7,0,0,0},
+    		{0,0,0,0,4,5,7,0,0},
+    		{0,0,0,1,0,0,0,3,0},
+    		{0,0,1,0,0,0,0,6,8},
+    		{0,0,8,5,0,0,0,1,0},
+    		{0,9,0,0,0,0,4,0,0}
+    	};
     	
     	SudokuSolver solver = new SudokuSolver(initGrid);
     	
