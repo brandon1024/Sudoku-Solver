@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class SudokuSolverGUI
 {
 	public static void main(String[] args)

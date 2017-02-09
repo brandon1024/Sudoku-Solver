@@ -2,21 +2,19 @@ public class SudokuGrid
 {
     private GridCell[][] grid;
 
-    /** Default SudokuGrid constructor. Initializes a 9x9 sudoku grid where
-      * each cell is modifiable with initial value 0.
-      */
-    public SudokuGrid()
-    {
-    	this.buildEmptyGrid();
-    }
-
     /** SudokuGrid constructor. Initializes a 9x9 sudoku grid with values
       * described by the parameter grid. The grid array must be 
       * an array of dimensions 9x9, where empty cells have a value of 0.
       * Empty cells are modifiable, and cells with values 1-9 will be
-      * marked as unmodifiable, and will not respond to incrementCell()
-      * or resetCell().
+      * marked as unmodifiable, and will not respond to incrementCell(),
+      * setCell() or resetCell().
       * 
+      * Each cell is assigned an array of valid cell values based on the initial
+      * cell values. If the cell has only one possible value, the cell value is
+      * set to this value and is marked as unmodifiable. This will simplify
+      * the puzzle and decrease the amount of time needed to find a solution.
+      * This may have a domino effect, spawning other cells to have only a single
+      * valid cell value, which will simplify the puzzle even further.
       * @param grid The initial sudoku cells given, used to construct a grid object
       */
     public SudokuGrid(int[][] grid)
@@ -47,6 +45,46 @@ public class SudokuGrid
     			}
     		}
     	}
+        
+        //Fill Possible Cell Values Array
+        for(int row = 0; row < grid.length; row++)
+        {
+        	for(int col = 0; col < grid[0].length; col++)
+        	{
+        		int quadrant = this.getQuadrant(col, row);
+        		int[] possibleCellValues = new int[0];
+        		
+        		for(int number = 1; number < 10; number++)
+        		{
+        			if(!this.isCellModifiable(col, row))
+        			{
+        				this.grid[row][col].validCellValues = null;
+        				break;
+        			}
+        			else if(this.rowContains(row, number) == 0 && this.colContains(col, number) == 0 && this.quadrantContains(quadrant, number) == 0)
+        			{
+        				int[] newArray = new int[possibleCellValues.length + 1];
+        				System.arraycopy(possibleCellValues, 0, newArray, 0, possibleCellValues.length);
+        				possibleCellValues = newArray;
+        				possibleCellValues[possibleCellValues.length - 1] = number;
+        			}
+        		}
+        		
+        		//Attempt to simplify grid
+        		if(possibleCellValues.length == 1)
+        		{
+        			this.grid[row][col].value = possibleCellValues[0];
+        			this.grid[row][col].validCellValues = null;
+    				this.grid[row][col].modifiable = false;
+    				row = -1;
+    				break;
+        		}
+        		else
+        		{
+        			this.grid[row][col].validCellValues = possibleCellValues;
+        		}
+        	}
+        }
     }
     
     /** Build an empty sudoku grid. Each cell has initial value 0, and is modifiable.
@@ -61,6 +99,7 @@ public class SudokuGrid
     			this.grid[i][o] = new GridCell();
     			this.grid[i][o].value = 0;
     			this.grid[i][o].modifiable = true;
+    			this.grid[i][o].validCellValues = null;
     		}
     	}
     }
@@ -258,7 +297,6 @@ public class SudokuGrid
     }
 
     /** Test the frequency of a given number across a row.
-      * 
       * @param y row
       * @param num
       * @return the number of occurrences of num in row
@@ -276,7 +314,6 @@ public class SudokuGrid
     }
 
     /** Test the frequency of a given number across a column.
-     * 
      * @param x column
      * @param num
      * @return the number of occurrences of num in col
@@ -294,7 +331,6 @@ public class SudokuGrid
     }
 
     /** Test the frequency of a given number in a quadrant.
-     * 
      * @param quadrant
      * @param num
      * @return the number of occurances of num in quadrant
@@ -334,7 +370,6 @@ public class SudokuGrid
     }
 
     /** Access the value of the grid cell at the given row and column.
-     * 
      * @param x column
      * @param y row
      * @return the cell value at row and column
@@ -345,7 +380,6 @@ public class SudokuGrid
     }
 
     /** Compute the quadrant number specified by the row and column parameters.
-     * 
      * @param x column
      * @param y row
      * @return the quadrant number specified by row and col
@@ -382,7 +416,6 @@ public class SudokuGrid
     }
     
     /** Increment the cell at given row and column.
-     * 
      * @throws RuntimeException if cell is not modifiable, or the cell value is 9.
      * @param x column
      * @param y row
@@ -390,15 +423,31 @@ public class SudokuGrid
     public void incrementCell(int x, int y)
     {
     	if(!this.grid[y][x].modifiable)
-    		 throw new RuntimeException("Cannot increment cell; user defined");
+    		throw new RuntimeException("Cannot increment cell; user defined");
     	else if(this.grid[y][x].value == 9)
             throw new RuntimeException("Cannot increment cell; maximum possible cell value");
         else
             this.grid[y][x].value++;
     }
 
+    /** Set the value of a given cell.
+      * @param x column
+      * @param y row
+      * @param value the desired cell value
+      * @throws RuntimeException if the cell is not modifiable or the value does not
+      * fall within the range 1-9 
+      * */
+    public void setCell(int x, int y, int value)
+    {
+    	if(!this.grid[y][x].modifiable)
+    		throw new RuntimeException("Cannot set cell value to" + value + "; cell not modifiable");
+    	else if(value > 9 || value < 1)
+           throw new RuntimeException("Cannot set cell value to" + value + "; must be 1-9");
+       else
+           this.grid[y][x].value = value;
+    }
+    
     /** Reset the cell to an empty cell with value 0.
-     * 
      * @throws RuntimeException if cell is not modifiable.
      * @param x column
      * @param y row
@@ -411,7 +460,6 @@ public class SudokuGrid
     }
     
     /** Returns whether the cell is modifiable.
-     * 
      * @param x column
      * @param y row
      * @return whether the cell is modifiable.
@@ -421,9 +469,19 @@ public class SudokuGrid
     	return this.grid[y][x].modifiable;
     }
     
+    /** Access an array containing all the possible values for a given cell.
+      * Based only on on the initial grid unmodifiable cell values.
+      * @param x column
+      * @param y row
+      * @return an array of all possible values for that cell
+      * */
+    public int[] getPossibleCellValues(int x, int y)
+    {
+    	return this.grid[y][x].validCellValues;
+    }
+    
     /** Build an array of integers that represents the sudoku grid at the moment of
      * being invoked.
-     * 
      * @return an array of integers representing this sudoku grid.
      */
     public int[][] getGrid()
@@ -449,5 +507,6 @@ public class SudokuGrid
     {
     	public boolean modifiable;
     	public int value;
+    	public int[] validCellValues;
     }
 }
