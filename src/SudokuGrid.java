@@ -22,13 +22,17 @@ public class SudokuGrid
     	this.buildEmptyGrid();
     	
     	//Reject Invalid Parameter Array
-    	if(grid.length != 9 || grid[0].length != 9)
+    	if(grid.length != 9)
         	throw new RuntimeException("provided grid has invalid dimensions");
     	
     	//Build SudokuGrid from Parameter Array
         for(int row = 0; row < grid.length; row++)
     	{
-    		for(int col = 0; col < grid[0].length; col++)
+        	//Reject Invalid Parameter Array
+	    	if(grid[row].length != 9)
+	        	throw new RuntimeException("provided grid has invalid dimensions");
+        	
+        	for(int col = 0; col < grid[row].length; col++)
     		{
     			if(grid[row][col] < 0 || grid[row][col] > 9)
     				throw new RuntimeException("provided grid has invalid cell; value: " + grid[row][col]);
@@ -92,14 +96,11 @@ public class SudokuGrid
     private void buildEmptyGrid()
     {
     	this.grid = new GridCell[9][9];
-    	for(int i = 0; i < this.grid.length; i++)
+    	for(int row = 0; row < this.grid.length; row++)
     	{
-    		for(int o = 0; o < this.grid[0].length; o++)
+    		for(int col = 0; col < this.grid[0].length; col++)
     		{
-    			this.grid[i][o] = new GridCell();
-    			this.grid[i][o].value = 0;
-    			this.grid[i][o].modifiable = true;
-    			this.grid[i][o].validCellValues = null;
+    			this.grid[row][col] = new GridCell();
     		}
     	}
     }
@@ -120,7 +121,7 @@ public class SudokuGrid
       */
     public boolean isValidRow(int y)
     {
-        //If Sum of Indices != 45 or Empty Cell Encountered, Row is Invalid
+        //If Sum of Cell Values != 45 or Empty Cell Encountered, Row is Invalid
         int sum = 0;
         for(int i = 0; i < 9; i++)
         {
@@ -133,14 +134,14 @@ public class SudokuGrid
         if(sum != 45)
             return false;
 
-        //If Sum of Indices == 45, Check Frequency of Numbers
+        //If Sum of Cell Values == 45, Check Frequency of Numbers
         for(int i = 1; i < 10; i++)
         {
             int count = 0;
 
-            for(int o = 0; o < 9; o++)
+            for(int col = 0; col < 9; col++)
             {
-                if(this.grid[y][o].value == i)
+                if(this.grid[y][col].value == i)
                     count++;
             }
 
@@ -167,7 +168,7 @@ public class SudokuGrid
       */
     public boolean isValidColumn(int x)
     {
-        //If Sum of Indices != 45, Col is Invalid
+        //If Sum of Cell Values != 45, Col is Invalid
         int sum = 0;
         for(int i = 0; i < 9; i++)
         {
@@ -177,14 +178,14 @@ public class SudokuGrid
         if(sum != 45)
             return false;
 
-        //If Sum of Indices == 45, Check Frequency of Numbers
+        //If Sum of Cell Values == 45, Check Frequency of Numbers
         for(int i = 1; i < 10; i++)
         {
             int count = 0;
 
-            for(int o = 0; o < 9; o++)
+            for(int row = 0; row < 9; row++)
             {
-                if(this.grid[o][x].value == i)
+                if(this.grid[row][x].value == i)
                     count++;
             }
 
@@ -230,29 +231,29 @@ public class SudokuGrid
             yOffset = 6;
         }
 
-        //If Sum of Indices != 45, Quadrant is Invalid
+        //If Sum of Cell Values != 45, Quadrant is Invalid
         int sum = 0;
-        for(int i = 0; i < 3; i++)
+        for(int row = 0; row < 3; row++)
         {
-            for(int o = 0; o < 3; o++)
+            for(int col = 0; col < 3; col++)
             {
-                sum += this.grid[i + yOffset][o + xOffset].value;
+                sum += this.grid[row + yOffset][col + xOffset].value;
             }
         }
 
         if(sum != 45)
             return false;
 
-        //If Sum of Indices == 45, Check Frequency of Numbers
+        //If Sum of Cell Values == 45, Check Frequency of Numbers
         for(int n = 1; n < 10; n++)
         {
             int count = 0;
 
-            for(int i = 0; i < 3; i++)
+            for(int row = 0; row < 3; row++)
             {
-                for(int o = 0; o < 3; o++)
+                for(int col = 0; col < 3; col++)
                 {
-                    if(this.grid[i + yOffset][o + xOffset].value == n)
+                    if(this.grid[row + yOffset][col + xOffset].value == n)
                         count++;
                 }
             }
@@ -272,24 +273,15 @@ public class SudokuGrid
       */
     public boolean isValid()
     {
-        //Test Rows
-        for(int i = 0; i < 9; i++)
+        for(int identifier = 0; identifier < 9; identifier++)
         {
-            if(!this.isValidRow(i))
+        	if(!this.isValidRow(identifier))
                 return false;
-        }
-
-        //Test Columns
-        for(int i = 0; i < 9; i++)
-        {
-            if(!this.isValidColumn(i))
+        	
+        	if(!this.isValidColumn(identifier))
                 return false;
-        }
-
-        //Test Quadrants
-        for(int i = 0; i < 9; i++)
-        {
-            if(!this.isValidQuadrant(i))
+        	
+        	if(!this.isValidQuadrant(identifier))
                 return false;
         }
 
@@ -505,8 +497,8 @@ public class SudokuGrid
       */
     private class GridCell
     {
-    	public boolean modifiable;
-    	public int value;
-    	public int[] validCellValues;
+    	public boolean modifiable = true;
+    	public int value = 0;
+    	public int[] validCellValues = null;
     }
 }
