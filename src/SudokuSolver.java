@@ -10,10 +10,7 @@ public class SudokuSolver
 	  */
     public SudokuSolver()
     {
-    	this.iterations = 0;
-    	this.xy = new int[]{0,0};
-    	this.initialGrid = null;
-    	this.solvedGrid = null;
+    	this.reset();
     }
    
     /** Constructs a new SudokuSolver given an initial sudoku grid.
@@ -22,10 +19,7 @@ public class SudokuSolver
       */
     public SudokuSolver(int[][] initGrid)
     {
-    	this.iterations = 0;
-    	this.xy = new int[]{0,0};
-    	this.initialGrid = initGrid;
-    	this.solvedGrid = null;
+    	this.reset(initGrid);
     }
     
     /** Resets this object back to defaults. Clears all instance variables
@@ -65,27 +59,10 @@ public class SudokuSolver
       */
     public int[][] solve()
     {
-    	//Throw exception if the sudoku grid given is invalid
-    	if(this.initialGrid == null)
-    		throw new RuntimeException("Initial Grid Null. Initialize SudokuSolver with Initial Grid.");
-    	else if(this.initialGrid.length != 9 || this.initialGrid[0].length != 9)
-    		throw new RuntimeException("Invalid Grid Dimensions.");
-    	
     	//Build SudokuGrid Object
-    	//Throw exception if the provided initial grid is invalid
     	SudokuGrid grid = new SudokuGrid(this.initialGrid);
-    	for(int i = 0; i < 9; i++)
-    	{
-    		for(int o = 1; o < 10; o++)
-    		{
-    			if(grid.rowContains(i, o) > 1 || grid.colContains(i, o) > 1 || grid.quadrantContains(i, o) > 1)
-    			{
-    				throw new RuntimeException("invalid sudoku puzzle; cannot be solved");
-    			}
-    		}
-    	}
-    	
     	boolean backtrack = false;
+    	
     	outerloop:
     	while(true)
     	{
@@ -96,13 +73,9 @@ public class SudokuSolver
     		if(!grid.isCellModifiable(this.xy[0], this.xy[1]))
     		{
     			if(!backtrack)
-    			{
     				this.stepForward();
-    			}
     			else
-    			{
     				this.stepBackward();
-    			}
     			
     			continue;
     		}
@@ -137,7 +110,7 @@ public class SudokuSolver
     			grid.setCell(this.xy[0], this.xy[1], possibleValue);
     			
     			//If value already exists in row
-    			if(grid.rowContains(this.xy[1], grid.getCell(this.xy[0], this.xy[1])) > 1)
+    			if(grid.rowContains(this.xy[1], grid.getCell(this.xy[0], this.xy[1]), false) > 1)
     			{
     				//Step backwards if end of array is reached
     				if(index == possibleCellValues.length - 1)
@@ -155,7 +128,7 @@ public class SudokuSolver
     			}
     			
     			//If value already exists in column
-    			if(grid.colContains(this.xy[0], grid.getCell(this.xy[0], this.xy[1])) > 1)
+    			if(grid.colContains(this.xy[0], grid.getCell(this.xy[0], this.xy[1]), false) > 1)
     			{
     				//Step backwards if end of array is reached
     				if(index == possibleCellValues.length - 1)
@@ -173,7 +146,7 @@ public class SudokuSolver
     			}
     			
     			//If value already exists in quadrant
-    			if(grid.quadrantContains(grid.getQuadrant(this.xy[0], this.xy[1]), grid.getCell(this.xy[0], this.xy[1])) > 1)
+    			if(grid.quadrantContains(grid.getQuadrant(this.xy[0], this.xy[1]), grid.getCell(this.xy[0], this.xy[1]), false) > 1)
     			{
     				//Step backwards if end of array is reached
     				if(index == possibleCellValues.length - 1)
@@ -198,9 +171,7 @@ public class SudokuSolver
     		
     		//If solution found, return
     		if(grid.isValid())
-    		{
     			break;
-    		}
     		
     		continue;
     	}

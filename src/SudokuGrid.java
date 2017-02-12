@@ -22,16 +22,20 @@ public class SudokuGrid
     	this.buildEmptyGrid();
     	
     	//Reject Invalid Parameter Array
+    	if(grid == null)
+    		throw new RuntimeException("provided grid is null");
+    	
     	if(grid.length != 9)
         	throw new RuntimeException("provided grid has invalid dimensions");
     	
     	//Build SudokuGrid from Parameter Array
-        for(int row = 0; row < grid.length; row++)
+    	for(int row = 0; row < grid.length; row++)
     	{
         	//Reject Invalid Parameter Array
 	    	if(grid[row].length != 9)
 	        	throw new RuntimeException("provided grid has invalid dimensions");
         	
+	    	//Fill Grid from Provided Grid
         	for(int col = 0; col < grid[row].length; col++)
     		{
     			if(grid[row][col] < 0 || grid[row][col] > 9)
@@ -50,6 +54,16 @@ public class SudokuGrid
     		}
     	}
         
+        //Check Frequencies To Ensure Valid Puzzle
+        for(int identifier = 0; identifier < 9; identifier++)
+    	{
+    		for(int value = 1; value < 10; value++)
+    		{
+    			if(this.rowContains(identifier, value, false) > 1 || this.colContains(identifier, value, false) > 1 || this.quadrantContains(identifier, value, false) > 1)
+	    			throw new RuntimeException("invalid sudoku puzzle; cannot be solved");
+    		}
+    	}
+        
         //Fill Possible Cell Values Array
         for(int row = 0; row < grid.length; row++)
         {
@@ -65,7 +79,7 @@ public class SudokuGrid
         				this.grid[row][col].validCellValues = null;
         				break;
         			}
-        			else if(this.rowContains(row, number) == 0 && this.colContains(col, number) == 0 && this.quadrantContains(quadrant, number) == 0)
+        			else if(this.rowContains(row, number, true) == 0 && this.colContains(col, number, true) == 0 && this.quadrantContains(quadrant, number, true) == 0)
         			{
         				int[] newArray = new int[possibleCellValues.length + 1];
         				System.arraycopy(possibleCellValues, 0, newArray, 0, possibleCellValues.length);
@@ -281,16 +295,33 @@ public class SudokuGrid
       * @param num
       * @return the number of occurrences of num in row
       */
-    public int rowContains(int row, int num)
+    public int rowContains(int row, int num, boolean lazy)
     {
-        int count = 0;
-        for(int col = 0; col < 9; col++)
+        if(lazy)
         {
-            if(this.grid[row][col].value == num)
-                count++;
+        	for(int col = 0; col < 9; col++)
+            {
+                if(this.grid[row][col].value == num)
+                {
+                    return 1;
+                }
+            }
+        	
+        	return 0;
         }
+        else
+        {
+        	int count = 0;
+            for(int col = 0; col < 9; col++)
+            {
+                if(this.grid[row][col].value == num)
+                {
+                    count++;
+                }
+            }
 
-        return count;
+            return count;
+        }
     }
 
     /** Test the frequency of a given number across a column.
@@ -298,16 +329,33 @@ public class SudokuGrid
      * @param num
      * @return the number of occurrences of num in col
      */
-    public int colContains(int col, int num)
+    public int colContains(int col, int num, boolean lazy)
     {
-        int count = 0;
-        for(int row = 0; row < 9; row++)
+        if(lazy)
         {
-            if(this.grid[row][col].value == num)
-                count++;
-        }
+        	for(int row = 0; row < 9; row++)
+            {
+                if(this.grid[row][col].value == num)
+                {
+                    return 1;
+                }
+            }
 
-        return count;
+            return 0;
+        }
+        else
+        {
+        	int count = 0;
+            for(int row = 0; row < 9; row++)
+            {
+                if(this.grid[row][col].value == num)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
     }
 
     /** Test the frequency of a given number in a quadrant.
@@ -315,7 +363,7 @@ public class SudokuGrid
      * @param num
      * @return the number of occurances of num in quadrant
      */
-    public int quadrantContains(int quadrant, int num)
+    public int quadrantContains(int quadrant, int num, boolean lazy)
     {
         int xOffset = 0;
         int yOffset = 0;
@@ -336,17 +384,37 @@ public class SudokuGrid
             yOffset = 6;
         }
 
-        int count = 0;
-        for(int row = 0; row < 3; row++)
+        if(lazy)
         {
-            for(int col = 0; col < 3; col++)
+        	for(int row = 0; row < 3; row++)
             {
-                if(this.grid[row + yOffset][row + xOffset].value == num)
-                    count++;
+                for(int col = 0; col < 3; col++)
+                {
+                    if(this.grid[row + yOffset][row + xOffset].value == num)
+                    {
+                        return 1;
+                    }
+                }
             }
-        }
 
-        return count;
+            return 0;
+        }
+        else
+        {
+        	int count = 0;
+            for(int row = 0; row < 3; row++)
+            {
+                for(int col = 0; col < 3; col++)
+                {
+                    if(this.grid[row + yOffset][row + xOffset].value == num)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
     }
 
     /** Access the value of the grid cell at the given row and column.
