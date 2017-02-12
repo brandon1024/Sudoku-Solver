@@ -390,7 +390,7 @@ public class SudokuGrid
             {
                 for(int col = 0; col < 3; col++)
                 {
-                    if(this.grid[row + yOffset][row + xOffset].value == num)
+                    if(this.grid[row + yOffset][col + xOffset].value == num)
                     {
                         return 1;
                     }
@@ -406,7 +406,7 @@ public class SudokuGrid
             {
                 for(int col = 0; col < 3; col++)
                 {
-                    if(this.grid[row + yOffset][row + xOffset].value == num)
+                    if(this.grid[row + yOffset][col + xOffset].value == num)
                     {
                         count++;
                     }

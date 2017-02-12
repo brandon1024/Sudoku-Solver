@@ -49,7 +49,7 @@ public class SudokuSolverGUI
     			}
     			else
     			{
-    				System.out.print("¦");
+    				System.out.print(":");
     			}
     		}
     		System.out.println();
