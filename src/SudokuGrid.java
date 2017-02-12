@@ -91,7 +91,7 @@ public class SudokuGrid
         }
     }
     
-    /** Build an empty sudoku grid. Each cell has initial value 0, and is modifiable.
+    /** Build an empty sudoku grid. Constructs new GridCell for each element in the array.
       */
     private void buildEmptyGrid()
     {
