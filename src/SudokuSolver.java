@@ -105,9 +105,6 @@ public class SudokuSolver
     			//If value already exists in row
     			if(grid.rowContains(this.xy[1], possibleCellValues[index], true) == 1)
     			{
-    				//Set cell value to next possible value
-        			grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
-    				
     				//Step backwards if end of array is reached
     				if(index == possibleCellValues.length - 1)
     				{
@@ -117,15 +114,15 @@ public class SudokuSolver
     					continue outerloop;
     				}
     				else
+    				{
+    					grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
     					continue;
+    				}
     			}
     			
     			//If value already exists in column
     			if(grid.colContains(this.xy[0], possibleCellValues[index], true) == 1)
     			{
-    				//Set cell value to next possible value
-        			grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
-    				
     				//Step backwards if end of array is reached
     				if(index == possibleCellValues.length - 1)
     				{
@@ -135,15 +132,15 @@ public class SudokuSolver
     					continue outerloop;
     				}
     				else
+    				{
+    					grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
     					continue;
+    				}
     			}
     			
     			//If value already exists in quadrant
     			if(grid.quadrantContains(grid.getQuadrant(this.xy[0], this.xy[1]), possibleCellValues[index], true) == 1)
     			{
-    				//Set cell value to next possible value
-        			grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
-    				
     				//Step backwards if end of array is reached
     				if(index == possibleCellValues.length - 1)
     				{
@@ -153,7 +150,10 @@ public class SudokuSolver
     					continue outerloop;
     				}
     				else
+    				{
+    					grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
     					continue;
+    				}
     			}
     			
     			//Set cell value to next possible value

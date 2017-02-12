@@ -67,11 +67,12 @@ public class SudokuGrid
         //Fill Possible Cell Values Array
         for(int row = 0; row < grid.length; row++)
         {
-        	for(int col = 0; col < grid[0].length; col++)
+        	for(int col = 0; col < grid[row].length; col++)
         	{
         		int quadrant = this.getQuadrant(col, row);
-        		int[] possibleCellValues = new int[0];
+        		int[] possibleCellValues = new int[9];
         		
+        		int index = 0;
         		for(int number = 1; number < 10; number++)
         		{
         			if(!this.isCellModifiable(col, row))
@@ -81,12 +82,13 @@ public class SudokuGrid
         			}
         			else if(this.rowContains(row, number, true) == 0 && this.colContains(col, number, true) == 0 && this.quadrantContains(quadrant, number, true) == 0)
         			{
-        				int[] newArray = new int[possibleCellValues.length + 1];
-        				System.arraycopy(possibleCellValues, 0, newArray, 0, possibleCellValues.length);
-        				possibleCellValues = newArray;
-        				possibleCellValues[possibleCellValues.length - 1] = number;
+        				possibleCellValues[index++] = number;
         			}
         		}
+        		
+        		int[] newArray = new int[index];
+				System.arraycopy(possibleCellValues, 0, newArray, 0, index);
+				possibleCellValues = newArray;
         		
         		//Attempt to simplify grid
         		if(possibleCellValues.length == 1)
