@@ -65,46 +65,170 @@ public class SudokuGrid
     	}
         
         //Fill Possible Cell Values Array
-        for(int row = 0; row < grid.length; row++)
+        possibleCellArrayFind:
+        do
         {
-        	for(int col = 0; col < grid[row].length; col++)
-        	{
-        		int quadrant = this.getQuadrant(col, row);
-        		int[] possibleCellValues = new int[9];
+	        for(int row = 0; row < grid.length; row++)
+	        {
+	        	for(int col = 0; col < grid[row].length; col++)
+	        	{
+	        		int quadrant = this.getQuadrant(col, row);
+	        		int[] possibleCellValues = new int[9];
+	        		
+	        		int index = 0;
+	        		for(int number = 1; number < 10; number++)
+	        		{
+	        			if(!this.isCellModifiable(col, row))
+	        			{
+	        				this.grid[row][col].validCellValues = null;
+	        				break;
+	        			}
+	        			else if(this.rowContains(row, number, true) == 0 && this.colContains(col, number, true) == 0 && this.quadrantContains(quadrant, number, true) == 0)
+	        			{
+	        				possibleCellValues[index++] = number;
+	        			}
+	        		}
+	        		
+	        		int[] newArray = new int[index];
+					System.arraycopy(possibleCellValues, 0, newArray, 0, index);
+					possibleCellValues = newArray;
+	        		
+	        		//Attempt to simplify grid
+	        		if(possibleCellValues.length == 1)
+	        		{
+	        			this.grid[row][col].value = possibleCellValues[0];
+	        			this.grid[row][col].validCellValues = null;
+	    				this.grid[row][col].modifiable = false;
+	    				row = -1;
+	    				break;
+	        		}
+	        		else
+	        		{
+	        			this.grid[row][col].validCellValues = possibleCellValues;
+	        		}
+	        	}
+	        }
+	        
+	        for(int identifier = 0; identifier < 9; identifier++)
+	        {
+	        	//Check Row Frequency
+	        	for(int value = 1; value < 10; value++)
+	        	{
+	        		int count = 0;
+	        		int index = 0;
+	        		
+	        		for(int col = 0; col < this.grid[identifier].length; col++)
+	        		{
+	        			for(int possibleVal : this.grid[identifier][col].validCellValues)
+	        			{
+	        				if(possibleVal == value)
+	        				{
+	        					count++;
+	        					index = col;
+	        				}
+	        			}
+        				
+        				if(count > 1)
+        					break;
+	        		}
+	        		
+	        		if(count == 1)
+	        		{
+	        			this.grid[identifier][index].validCellValues = null;
+	        			this.grid[identifier][index].value = value;
+	        			this.grid[identifier][index].modifiable = false;
+	        			continue possibleCellArrayFind;
+	        		}
+	        	}
+	        	
+	        	//Check Column Frequency
+	        	for(int value = 1; value < 10; value++)
+	        	{
+	        		int count = 0;
+	        		int index = 0;
+	        		
+	        		for(int row = 0; row < this.grid.length; row++)
+	        		{
+	        			for(int possibleVal : this.grid[row][identifier].validCellValues)
+	        			{
+	        				if(possibleVal == value)
+	        				{
+	        					count++;
+	        					index = row;
+	        				}
+	        			}
+        				
+        				if(count > 1)
+        					break;
+	        		}
+	        		
+	        		if(count == 1)
+	        		{
+	        			this.grid[identifier][index].validCellValues = null;
+	        			this.grid[identifier][index].value = value;
+	        			this.grid[identifier][index].modifiable = false;
+	        			continue possibleCellArrayFind;
+	        		}
+	        	}
+	        	
+	        	//Check Quadrant Frequency
+	        	int xOffset = 0, yOffset = 0;
         		
-        		int index = 0;
-        		for(int number = 1; number < 10; number++)
-        		{
-        			if(!this.isCellModifiable(col, row))
-        			{
-        				this.grid[row][col].validCellValues = null;
-        				break;
-        			}
-        			else if(this.rowContains(row, number, true) == 0 && this.colContains(col, number, true) == 0 && this.quadrantContains(quadrant, number, true) == 0)
-        			{
-        				possibleCellValues[index++] = number;
-        			}
-        		}
+        		if(identifier >= 0 && identifier <= 2)
+                {
+                    xOffset = identifier * 3;
+                    yOffset = 0;
+                }
+                else if(identifier >= 3 && identifier <= 5)
+                {
+                    xOffset = ((identifier - 3) * 3);
+                    yOffset = 3;
+                }
+                else
+                {
+                    xOffset = ((identifier - 6) * 3);
+                    yOffset = 6;
+                }
         		
-        		int[] newArray = new int[index];
-				System.arraycopy(possibleCellValues, 0, newArray, 0, index);
-				possibleCellValues = newArray;
-        		
-        		//Attempt to simplify grid
-        		if(possibleCellValues.length == 1)
-        		{
-        			this.grid[row][col].value = possibleCellValues[0];
-        			this.grid[row][col].validCellValues = null;
-    				this.grid[row][col].modifiable = false;
-    				row = -1;
-    				break;
-        		}
-        		else
-        		{
-        			this.grid[row][col].validCellValues = possibleCellValues;
-        		}
-        	}
+	        	for(int value = 1; value < 10; value++)
+	        	{
+	        		int count = 0;
+	        		int indexX = 0, indexY = 0;
+	        		
+	        		quadrant:
+	        		for(int row = yOffset; row < 3; row++)
+	        		{
+	        			for(int col = xOffset; col < 3; col++)
+	        			{
+	        				for(int possibleVal : this.grid[row][col].validCellValues)
+		        			{
+		        				if(possibleVal == value)
+		        				{
+		        					count++;
+		        					indexY = row;
+		        					indexX = col;
+		        				}
+		        			}
+	        				
+	        				if(count > 1)
+	        					break quadrant;
+	        			}
+	        		}
+	        		
+	        		if(count == 1)
+	        		{
+	        			this.grid[indexY][indexX].validCellValues = null;
+	        			this.grid[indexY][indexX].value = value;
+	        			this.grid[indexY][indexX].modifiable = false;
+	        			System.out.println("FOUND");
+	        			continue possibleCellArrayFind;
+	        		}
+	        	}
+	        }
+	        
+	        break;
         }
+        while(true);
     }
     
     /** Build an empty sudoku grid. Constructs new GridCell for each element in the array.
