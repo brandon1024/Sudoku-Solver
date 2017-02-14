@@ -2,7 +2,8 @@ public class SudokuSolverGUI
 {
 	public static void main(String[] args)
     {
-    	int[][] initGrid = new int[][]
+    	//Build Sudoku Puzzle
+		int[][] initGrid = new int[][]
     	{
     		{8,0,0,0,0,0,0,0,0},
     		{0,0,3,6,0,0,0,0,0},
@@ -15,21 +16,26 @@ public class SudokuSolverGUI
     		{0,9,0,0,0,0,4,0,0}
     	};
     	
+    	//Initialize Solver and Print
     	SudokuSolver solver = new SudokuSolver(initGrid);
-    	
     	SudokuSolverGUI.print(solver.getInitialGrid());
+    	
+    	//Run Solver
     	String timeStarted = new java.text.SimpleDateFormat("HH:mm:ss.SSS").format(java.util.Calendar.getInstance().getTime());
-    	long timeStart = java.util.Calendar.getInstance().get(java.util.Calendar.MILLISECOND);
-    	
+    	long timeStart = System.nanoTime();
     	solver.solve();
-    	
     	String timeEnded = new java.text.SimpleDateFormat("HH:mm:ss.SSS").format(java.util.Calendar.getInstance().getTime());
-    	long timeEnd = java.util.Calendar.getInstance().get(java.util.Calendar.MILLISECOND);
+    	long timeEnd = System.nanoTime();
+    	double timeElapsed = timeEnd - timeStart;
+    	timeElapsed /= 1000000;
+    	
+    	//Print Solution
     	SudokuSolverGUI.print(solver.getSolvedGrid());
     	
+    	//Output Metrics
     	System.out.println("Time Started: " + timeStarted);
     	System.out.println("Time Finished: " + timeEnded);
-    	System.out.println("Time Elapsed: " + (timeEnd - timeStart) + "ms");
+    	System.out.println("Time Elapsed: " + timeElapsed + "ms");
     	System.out.println("Iterations: " + solver.getIterations());
     }
 	
@@ -41,15 +47,22 @@ public class SudokuSolverGUI
     		System.out.print("|");
     		for(int o = 0; o < grid[0].length; o++)
     		{
-    			System.out.print(" " + grid[i][o] + " ");
-    			
+    			if(grid[i][o] == 0)
+    			{
+    				System.out.print(" . ");
+    			}
+    			else
+    			{
+    				System.out.print(" " + grid[i][o] + " ");
+    			}
+    				
     			if((o+1) % 3 == 0)
     			{
     				System.out.print("|");
     			}
     			else
     			{
-    				System.out.print("¦");
+    				System.out.print(" ");
     			}
     		}
     		System.out.println();
@@ -60,7 +73,7 @@ public class SudokuSolverGUI
     		}
     		else
     		{
-    			System.out.println("+---+---+---+---+---+---+---+---+---+");
+    			System.out.println("|                                   |");
     		}
     	}
     }
