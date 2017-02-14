@@ -47,15 +47,22 @@ public class SudokuSolverGUI
     		System.out.print("|");
     		for(int o = 0; o < grid[0].length; o++)
     		{
-    			System.out.print(" " + grid[i][o] + " ");
-    			
+    			if(grid[i][o] == 0)
+    			{
+    				System.out.print(" . ");
+    			}
+    			else
+    			{
+    				System.out.print(" " + grid[i][o] + " ");
+    			}
+    				
     			if((o+1) % 3 == 0)
     			{
     				System.out.print("|");
     			}
     			else
     			{
-    				System.out.print(":");
+    				System.out.print(" ");
     			}
     		}
     		System.out.println();
@@ -66,7 +73,7 @@ public class SudokuSolverGUI
     		}
     		else
     		{
-    			System.out.println("+---+---+---+---+---+---+---+---+---+");
+    			System.out.println("|                                   |");
     		}
     	}
     }
