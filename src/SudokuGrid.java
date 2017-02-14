@@ -46,11 +46,9 @@ public class SudokuGrid
     				this.grid[row][col].modifiable = true;
     				continue;
     			}
-    			else
-    			{
-    				this.grid[row][col].value = grid[row][col];
-    				this.grid[row][col].modifiable = false;
-    			}
+    			
+				this.grid[row][col].value = grid[row][col];
+				this.grid[row][col].modifiable = false;
     		}
     	}
         
@@ -83,10 +81,9 @@ public class SudokuGrid
 	        				this.grid[row][col].validCellValues = null;
 	        				break;
 	        			}
-	        			else if(this.rowContains(row, number, true) == 0 && this.colContains(col, number, true) == 0 && this.quadrantContains(quadrant, number, true) == 0)
-	        			{
+
+	        			if(this.rowContains(row, number, true) == 0 && this.colContains(col, number, true) == 0 && this.quadrantContains(quadrant, number, true) == 0)
 	        				possibleCellValues[index++] = number;
-	        			}
 	        		}
 	        		
 	        		int[] newArray = new int[index];
@@ -102,21 +99,22 @@ public class SudokuGrid
 	    				row = -1;
 	    				break;
 	        		}
-	        		else
-	        		{
-	        			this.grid[row][col].validCellValues = possibleCellValues;
-	        		}
+	        		
+	        		this.grid[row][col].validCellValues = possibleCellValues;
 	        	}
 	        }
 	        
+	        //Iterate Over Number of Rows/Columns/Quadrants
+	        int count = 0, index = 0;
+	        int indexX = 0, indexY = 0;
 	        for(int identifier = 0; identifier < 9; identifier++)
 	        {
 	        	//Check Row Frequency
+	        	rowFreq:
 	        	for(int value = 1; value < 10; value++)
 	        	{
-	        		int count = 0;
-	        		int index = 0;
-	        		
+	        		count = 0;
+	        		index = 0;
 	        		for(int col = 0; col < this.grid[identifier].length; col++)
 	        		{
 	        			for(int possibleVal : this.grid[identifier][col].validCellValues)
@@ -129,7 +127,7 @@ public class SudokuGrid
 	        			}
         				
         				if(count > 1)
-        					break;
+        					continue rowFreq;
 	        		}
 	        		
 	        		if(count == 1)
@@ -142,11 +140,11 @@ public class SudokuGrid
 	        	}
 	        	
 	        	//Check Column Frequency
+	        	colFreq:
 	        	for(int value = 1; value < 10; value++)
 	        	{
-	        		int count = 0;
-	        		int index = 0;
-	        		
+	        		count = 0;
+	        		index = 0;
 	        		for(int row = 0; row < this.grid.length; row++)
 	        		{
 	        			for(int possibleVal : this.grid[row][identifier].validCellValues)
@@ -159,7 +157,7 @@ public class SudokuGrid
 	        			}
         				
         				if(count > 1)
-        					break;
+        					continue colFreq;
 	        		}
 	        		
 	        		if(count == 1)
@@ -190,12 +188,12 @@ public class SudokuGrid
                     yOffset = 6;
                 }
         		
+        		quadFreq:
 	        	for(int value = 1; value < 10; value++)
 	        	{
-	        		int count = 0;
-	        		int indexX = 0, indexY = 0;
-	        		
-	        		quadrant:
+	        		count = 0;
+	        		indexX = 0;
+	        		indexY = 0;
 	        		for(int row = yOffset; row < 3; row++)
 	        		{
 	        			for(int col = xOffset; col < 3; col++)
@@ -211,7 +209,7 @@ public class SudokuGrid
 		        			}
 	        				
 	        				if(count > 1)
-	        					break quadrant;
+	        					continue quadFreq;
 	        			}
 	        		}
 	        		
@@ -220,7 +218,6 @@ public class SudokuGrid
 	        			this.grid[indexY][indexX].validCellValues = null;
 	        			this.grid[indexY][indexX].value = value;
 	        			this.grid[indexY][indexX].modifiable = false;
-	        			System.out.println("FOUND");
 	        			continue possibleCellArrayFind;
 	        		}
 	        	}
@@ -428,26 +425,20 @@ public class SudokuGrid
         	for(int col = 0; col < 9; col++)
             {
                 if(this.grid[row][col].value == num)
-                {
                     return 1;
-                }
             }
         	
         	return 0;
         }
-        else
-        {
-        	int count = 0;
-            for(int col = 0; col < 9; col++)
-            {
-                if(this.grid[row][col].value == num)
-                {
-                    count++;
-                }
-            }
 
-            return count;
-        }
+		int count = 0;
+	    for(int col = 0; col < 9; col++)
+	    {
+	        if(this.grid[row][col].value == num)
+	            count++;
+	    }
+	
+	    return count;
     }
 
     /** Test the frequency of a given number across a column.
@@ -462,26 +453,20 @@ public class SudokuGrid
         	for(int row = 0; row < 9; row++)
             {
                 if(this.grid[row][col].value == num)
-                {
                     return 1;
-                }
             }
 
             return 0;
         }
-        else
-        {
-        	int count = 0;
-            for(int row = 0; row < 9; row++)
-            {
-                if(this.grid[row][col].value == num)
-                {
-                    count++;
-                }
-            }
 
-            return count;
+    	int count = 0;
+        for(int row = 0; row < 9; row++)
+        {
+            if(this.grid[row][col].value == num)
+                count++;
         }
+
+        return count;
     }
 
     /** Test the frequency of a given number in a quadrant.
@@ -517,30 +502,24 @@ public class SudokuGrid
                 for(int col = 0; col < 3; col++)
                 {
                     if(this.grid[row + yOffset][col + xOffset].value == num)
-                    {
                         return 1;
-                    }
                 }
             }
 
             return 0;
         }
-        else
+        
+    	int count = 0;
+        for(int row = 0; row < 3; row++)
         {
-        	int count = 0;
-            for(int row = 0; row < 3; row++)
+            for(int col = 0; col < 3; col++)
             {
-                for(int col = 0; col < 3; col++)
-                {
-                    if(this.grid[row + yOffset][col + xOffset].value == num)
-                    {
-                        count++;
-                    }
-                }
+                if(this.grid[row + yOffset][col + xOffset].value == num)
+                    count++;
             }
-
-            return count;
         }
+
+        return count;
     }
 
     /** Access the value of the grid cell at the given row and column.

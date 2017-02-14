@@ -77,7 +77,7 @@ public class SudokuSolver
     			else
     				this.stepBackward();
     			
-    			continue;
+    			continue outerloop;
     		}
     		
     		//Get possible cell values for current cell
@@ -98,8 +98,8 @@ public class SudokuSolver
     					this.stepBackward();
     					continue outerloop;
     				}
-    				else
-    					continue;
+
+					continue;
     			}
     			
     			//If value already exists in row
@@ -113,11 +113,9 @@ public class SudokuSolver
     					this.stepBackward();
     					continue outerloop;
     				}
-    				else
-    				{
-    					grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
-    					continue;
-    				}
+    				
+    				grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
+    				continue;
     			}
     			
     			//If value already exists in column
@@ -131,11 +129,9 @@ public class SudokuSolver
     					this.stepBackward();
     					continue outerloop;
     				}
-    				else
-    				{
-    					grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
-    					continue;
-    				}
+    				
+    				grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
+    				continue;
     			}
     			
     			//If value already exists in quadrant
@@ -149,11 +145,9 @@ public class SudokuSolver
     					this.stepBackward();
     					continue outerloop;
     				}
-    				else
-    				{
-    					grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
-    					continue;
-    				}
+    				
+    				grid.setCell(this.xy[0], this.xy[1], possibleCellValues[index]);
+    				continue;
     			}
     			
     			//Set cell value to next possible value
